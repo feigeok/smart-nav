@@ -740,7 +740,7 @@
 
         function loadFriendLinks() {
             const container = document.getElementById('friend-links-container'); let linksStr = localStorage.getItem('nav_friend_links'); let links = linksStr ? JSON.parse(linksStr) : []; container.innerHTML = '';
-            if(links.length === 0) { links = [ { name: "IT头条博客", url: "https://it-toutiao.blogspot.com" }, { name: "科技共享导航", url: "https://kjgx.168668520.xyz" } ]; }
+            if(links.length === 0) { links = [ { name: "V-Boost项目简介", url: "https://weixin.qq.com/sph/AQf4RuKlsN" }, { name: "V-Boost新人第一课", url: "https://mp.weixin.qq.com/s/3OvEYhBM0VcUKaThHgr-Vw" } ]; }
             links.forEach((item, index) => {
                 const displayName = getLocalizedLinkName(item.name, item.url);
                 container.innerHTML += `
