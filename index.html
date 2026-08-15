@@ -176,6 +176,8 @@
                 </div>
                 <div class="text-[10px] text-slate-500 px-1" data-i18n="layoutOrder">卡片顺序与显隐 (↑↓ 移动 / 眼睛隐藏)</div>
                 <div id="layout-card-list" class="space-y-1 max-h-36 overflow-y-auto pr-1"></div>
+                <div class="text-[10px] text-slate-500 px-1" data-i18n="layoutIcons">卡片标题图标 (输入 fa-rocket 这类图标名)</div>
+                <div id="layout-icon-list" class="space-y-1 max-h-40 overflow-y-auto pr-1"></div>
                 <button onclick="saveLayoutSettings()" class="w-full py-1.5 rounded-lg bg-indigo-600 text-white text-[11px] text-center hover:bg-indigo-500 transition-colors cursor-pointer" data-i18n="layoutSave">保存布局设置</button>
             </div>
 
@@ -228,7 +230,7 @@
             
             <div id="card-recommend" class="glass-card rounded-2xl p-6 shadow-xl hover:border-indigo-500/30 transition-all duration-300">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-indigo-400 flex items-center"><i id="fixed-card-icon-recommend" class="fas fa-star mr-2.5"></i> <span id="fixed-card-title-recommend" data-i18n="cardRec">官网直达</span></h3>
+                    <h3 class="text-lg font-semibold text-indigo-400 flex items-center"><i id="fixed-card-icon-recommend" data-card-icon="card-recommend" class="fas fa-star mr-2.5"></i> <span id="fixed-card-title-recommend" data-i18n="cardRec">官网直达</span></h3>
                     <button type="button" onclick="openFixedEdit('card-recommend')" class="admin-only text-[10px] px-2 py-1 bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-md hover:bg-indigo-600/40 transition-colors cursor-pointer z-[50]"><i class="fas fa-pen"></i> <span data-i18n="fixedEditBtn">编辑</span></button>
                 </div>
                 <div id="fixed-links-recommend" class="grid grid-cols-2 gap-3"></div>
@@ -236,7 +238,7 @@
 
             <div id="card-develop" class="glass-card rounded-2xl p-6 shadow-xl hover:border-purple-500/30 transition-all duration-300">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-purple-400 flex items-center"><i id="fixed-card-icon-develop" class="fas fa-code mr-2.5"></i> <span id="fixed-card-title-develop" data-i18n="cardDev">常用工具</span></h3>
+                    <h3 class="text-lg font-semibold text-purple-400 flex items-center"><i id="fixed-card-icon-develop" data-card-icon="card-develop" class="fas fa-code mr-2.5"></i> <span id="fixed-card-title-develop" data-i18n="cardDev">常用工具</span></h3>
                     <button type="button" onclick="openFixedEdit('card-develop')" class="admin-only text-[10px] px-2 py-1 bg-purple-600/20 text-purple-400 border border-purple-500/20 rounded-md hover:bg-purple-600/40 transition-colors cursor-pointer z-[50]"><i class="fas fa-pen"></i> <span data-i18n="fixedEditBtn">编辑</span></button>
                 </div>
                 <div id="fixed-links-develop" class="grid grid-cols-2 gap-3"></div>
@@ -244,7 +246,7 @@
 
             <div id="card-custom" class="glass-card rounded-2xl p-6 shadow-xl hover:border-pink-500/30 transition-all duration-300 xl:col-span-1">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-pink-400 flex items-center"><i class="fas fa-folder-plus mr-2.5"></i> <span data-i18n="cardCustom">站长推荐</span></h3>
+                    <h3 class="text-lg font-semibold text-pink-400 flex items-center"><i data-card-icon="card-custom" class="fas fa-folder-plus mr-2.5"></i> <span data-i18n="cardCustom">站长推荐</span></h3>
                     <button type="button" onclick="openLinkModal('custom')" class="admin-only text-xs px-2.5 py-1 bg-pink-600/20 text-pink-400 border border-pink-500/20 rounded-lg hover:bg-pink-600/40 transition-colors cursor-pointer z-[50]" data-i18n="addCloud">添加 (云端)</button>
                 </div>
                 <div id="custom-links-container"></div>
@@ -266,7 +268,7 @@
         <div id="friend-links-wrap" class="w-full relative z-10 mb-12">
             <div class="glass-card rounded-2xl p-6 shadow-xl hover:border-emerald-500/20 transition-all duration-300">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-base font-semibold text-emerald-400 flex items-center"><i class="fas fa-handshake mr-2.5"></i> <span data-i18n="cardFriend">快捷链接</span></h3>
+                    <h3 class="text-base font-semibold text-emerald-400 flex items-center"><i data-card-icon="card-friend" class="fas fa-handshake mr-2.5"></i> <span data-i18n="cardFriend">快捷链接</span></h3>
                     <button type="button" onclick="openLinkModal('friend')" class="admin-only text-xs px-2.5 py-1 bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-600/40 transition-colors cursor-pointer z-[50]" data-i18n="addLocal">添加 (本地)</button>
                 </div>
                 <div id="friend-links-container" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3"></div>
@@ -347,7 +349,7 @@
             return {
                 columns: 3, gap: 32, radius: 16, opacity: 0.7,
                 showFriendLinks: true, useFavicon: true, faviconService: 'faviconim',
-                cardOrder: [], hiddenCards: []
+                cardOrder: [], hiddenCards: [], cardIcons: {}
             };
         }
         let currentUseFavicon = true;
@@ -362,6 +364,33 @@
             direct:    d => 'https://' + d + '/favicon.ico'
         };
         let currentFaviconSvc = 'faviconim';
+
+        // 卡片标题默认图标（后台可通过布局面板的 cardIcons 覆盖）
+        const DEFAULT_CARD_ICONS = {
+            'card-recommend': 'fas fa-star',
+            'card-develop': 'fas fa-code',
+            'card-custom': 'fas fa-folder-plus',
+            'card-friend': 'fas fa-handshake'
+        };
+        // 图标名归一化：接受 "fa-rocket" 或 "fab fa-github" 这类写法，非法输入返回空串
+        function normalizeIconClass(v) {
+            v = String(v || '').trim().replace(/\s+/g, ' ').slice(0, 80).toLowerCase();
+            if (!v) return '';
+            const m = v.match(/^(?:(fas|far|fab|fa-solid|fa-regular|fa-brands)\s+)?(fa-[a-z0-9-]+)$/);
+            if (!m) return '';
+            return (m[1] || 'fas') + ' ' + m[2];
+        }
+        function getCardIcon(cardId, fallback) {
+            const v = normalizeIconClass((getLayout().cardIcons || {})[cardId]);
+            return v || fallback || 'fas fa-layer-group';
+        }
+        // 应用所有卡片标题图标（覆盖 data-card-icon 标记的元素）
+        function applyCardIcons() {
+            document.querySelectorAll('[data-card-icon]').forEach(el => {
+                const id = el.getAttribute('data-card-icon');
+                el.className = getCardIcon(id, DEFAULT_CARD_ICONS[id]) + ' mr-2.5';
+            });
+        }
 
         let dragType = null; 
         let dragSecId = null; 
@@ -393,6 +422,7 @@
                 layoutTitle: "布局设置 (全站同步)", layoutReset: "重置默认", layoutColumns: "主网格列数", layoutGap: "卡片间距", layoutRadius: "卡片圆角",
                 layoutOpacity: "卡片透明度", layoutFriend: "显示快捷链接", layoutFavicon: "自动获取网址 Logo", layoutOrder: "卡片顺序与显隐 (↑↓ 移动 / 眼睛隐藏)",
                 layoutFaviconSvc: "图标识别服务", svcFaviconim: "Favicon.im（推荐）", svcGoogle: "Google（海外）", svcYandex: "Yandex", svcDirect: "网站自身 favicon.ico", svcNone: "关闭识别（字母图标）",
+                layoutIcons: "卡片标题图标 (输入 fa-rocket 这类图标名)",
                 layoutSave: "保存布局设置", layoutSaved: "✅ 布局设置已保存，全站生效", layoutResetConfirm: "确定恢复默认布局吗？",
                 gapTight: "紧凑", gapMid: "标准", gapLoose: "宽松", radiusSmall: "小", radiusMid: "中", radiusLarge: "大",
                 fixedEditBtn: "编辑", fixedEditModalTitle: "编辑固定卡片", fixedCardTitle: "卡片标题", fixedLinks: "链接列表",
@@ -420,6 +450,7 @@
                 layoutTitle: "Layout Settings (Cloud Sync)", layoutReset: "Reset Defaults", layoutColumns: "Grid Columns", layoutGap: "Card Spacing", layoutRadius: "Card Radius",
                 layoutOpacity: "Card Opacity", layoutFriend: "Show Quick Links", layoutFavicon: "Auto Fetch Site Logo", layoutOrder: "Card Order & Visibility",
                 layoutFaviconSvc: "Icon Service", svcFaviconim: "Favicon.im (Recommended)", svcGoogle: "Google (Overseas)", svcYandex: "Yandex", svcDirect: "Site's own favicon.ico", svcNone: "Disabled (Letter Icons)",
+                layoutIcons: "Card Title Icons (e.g., fa-rocket)",
                 layoutSave: "Save Layout", layoutSaved: "✅ Layout saved & synced", layoutResetConfirm: "Reset to default layout?",
                 gapTight: "Tight", gapMid: "Normal", gapLoose: "Loose", radiusSmall: "S", radiusMid: "M", radiusLarge: "L",
                 fixedEditBtn: "Edit", fixedEditModalTitle: "Edit Fixed Card", fixedCardTitle: "Card Title", fixedLinks: "Links",
@@ -641,7 +672,8 @@
                     titleEl.setAttribute('data-i18n', key);
                     titleEl.textContent = t(key);
                 }
-                if (sec.icon) iconEl.className = 'fas ' + sec.icon + ' mr-2.5';
+                // 图标统一交给 cardIcons 机制（applyCardIcons 按 data-card-icon 应用）
+                iconEl.setAttribute('data-card-icon', sec.id);
                 linksEl.className = links.length > 6 ? 'grid grid-cols-3 gap-2' : 'grid grid-cols-2 gap-3';
                 if (!links.length) {
                     const empty = document.createElement('div');
@@ -666,6 +698,7 @@
                     linksEl.appendChild(wrap);
                 });
             });
+            applyCardIcons();
         }
 
         let fixedEditCardId = null;
@@ -774,6 +807,7 @@
             // 卡片顺序与显隐
             reorderCards();
             applyCardVisibility();
+            applyCardIcons();
             syncLayoutUI();
         }
 
@@ -821,6 +855,7 @@
             const svcSel = document.getElementById('layout-favicon-svc');
             if (svcSel) svcSel.value = layout.faviconService || 'faviconim';
             buildCardOrderList();
+            buildCardIconList();
         }
 
         function setBtnGroup(groupId, val) {
@@ -885,6 +920,49 @@
                 row.append(nameSpan, btns);
                 list.appendChild(row);
             });
+        }
+
+        // 卡片标题图标编辑列表：预览 + 输入框，输入 fa-xxx 即时生效（保存布局后云端同步）
+        function buildCardIconList() {
+            const list = document.getElementById('layout-icon-list');
+            if (!list) return;
+            list.innerHTML = '';
+            const layout = getLayout();
+            const cards = [
+                { id: 'card-recommend', name: t('cardRec') },
+                { id: 'card-develop', name: t('cardDev') },
+                { id: 'card-custom', name: t('cardCustom') },
+                { id: 'card-friend', name: t('cardFriend') }
+            ];
+            (cloudConfig.dynamicSections || []).forEach(s => cards.push({ id: 'section-' + s.id, name: s.title }));
+            cards.forEach(card => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-1.5 bg-slate-800/70 rounded-lg px-2 py-1';
+                const preview = document.createElement('i');
+                preview.setAttribute('data-card-icon', card.id);
+                preview.className = getCardIcon(card.id, DEFAULT_CARD_ICONS[card.id]) + ' text-slate-300 text-xs w-4 text-center shrink-0';
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'text-[11px] text-slate-400 truncate shrink-0';
+                nameSpan.textContent = card.name;
+                nameSpan.title = card.name;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'flex-1 min-w-0 bg-transparent text-[11px] text-slate-200 border-none focus:outline-none focus:ring-0 px-1 py-0.5';
+                input.placeholder = DEFAULT_CARD_ICONS[card.id] || 'fas fa-layer-group';
+                input.value = (layout.cardIcons || {})[card.id] || '';
+                input.addEventListener('input', () => setCardIcon(card.id, input.value));
+                row.append(preview, nameSpan, input);
+                list.appendChild(row);
+            });
+        }
+
+        function setCardIcon(cardId, v) {
+            const layout = getLayout();
+            if (!layout.cardIcons || typeof layout.cardIcons !== 'object') layout.cardIcons = {};
+            const n = normalizeIconClass(v);
+            if (!n) delete layout.cardIcons[cardId];
+            else layout.cardIcons[cardId] = n;
+            applyCardIcons();
         }
 
         function moveCard(id, dir) {
@@ -1045,6 +1123,7 @@
                 const gripIcon = document.createElement('i');
                 gripIcon.className = 'fas fa-grip-vertical mr-2 text-slate-500 opacity-60 admin-only text-sm';
                 const layerIcon = document.createElement('i');
+                layerIcon.setAttribute('data-card-icon', 'section-' + sec.id);
                 layerIcon.className = 'fas fa-layer-group mr-2.5';
                 const titleSpan = document.createElement('span');
                 titleSpan.textContent = sec.title || '';
