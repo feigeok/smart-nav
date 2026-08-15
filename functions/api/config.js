@@ -163,6 +163,9 @@ function sanitizeLayout(l) {
     if (!isNaN(op) && op > 0) out.opacity = Math.min(1, Math.max(0.2, Math.round(op * 100) / 100));
     out.showFriendLinks = l.showFriendLinks !== false;
     out.useFavicon = l.useFavicon !== false;
+    if (['faviconim', 'google', 'yandex', 'direct', 'none'].includes(l.faviconService)) {
+        out.faviconService = l.faviconService;
+    }
     if (Array.isArray(l.cardOrder)) {
         out.cardOrder = l.cardOrder.map(s => String(s).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80)).filter(Boolean).slice(0, 60);
     }
