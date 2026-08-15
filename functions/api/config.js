@@ -166,6 +166,16 @@ function sanitizeLayout(l) {
     if (['faviconim', 'google', 'yandex', 'direct', 'none'].includes(l.faviconService)) {
         out.faviconService = l.faviconService;
     }
+    // 卡片标题图标：key 限卡片 id 格式，value 只允许 fas/far/fab 等 + fa-xxx 的字体图标类
+    if (l.cardIcons && typeof l.cardIcons === 'object' && !Array.isArray(l.cardIcons)) {
+        const ci = {};
+        Object.keys(l.cardIcons).slice(0, 40).forEach(k => {
+            const key = String(k).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80);
+            const val = String(l.cardIcons[k]).trim().slice(0, 80);
+            if (key && /^(fas|far|fab|fa-solid|fa-regular|fa-brands) fa-[a-z0-9-]+$/i.test(val)) ci[key] = val.toLowerCase();
+        });
+        out.cardIcons = ci;
+    }
     if (Array.isArray(l.cardOrder)) {
         out.cardOrder = l.cardOrder.map(s => String(s).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80)).filter(Boolean).slice(0, 60);
     }
