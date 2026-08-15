@@ -79,6 +79,12 @@ async function handleWrite(env, request) {
     if (Array.isArray(body.dynamicSections)) {
         clean.dynamicSections = sanitizeSections(body.dynamicSections);
     }
+    if (body.layout && typeof body.layout === 'object') {
+        clean.layout = sanitizeLayout(body.layout);
+    }
+    if (Array.isArray(body.fixedSections)) {
+        clean.fixedSections = sanitizeFixedSections(body.fixedSections);
+    }
     // 任何密码字段一律丢弃：密码只存在于环境变量 ADMIN_KEY
     stripSecrets(body);
 
@@ -119,6 +125,49 @@ function sanitizeSections(sections) {
             if (name && url) links.push({ name, url });
         }
         out.push({ id: String(sec.id || '').slice(0, 64), title, links });
+    }
+    return out;
+}
+
+// 固定卡片（官网直达/常用工具）配置清洗：
+// id 仅允许两张固定卡；标题/图标白名单；链接复用 URL 校验
+const FIXED_CARD_IDS = ['card-recommend', 'card-develop'];
+function sanitizeFixedSections(secs) {
+    const out = [];
+    for (const sec of secs.slice(0, 10)) {
+        if (!sec || typeof sec !== 'object') continue;
+        const id = String(sec.id || '');
+        if (!FIXED_CARD_IDS.includes(id)) continue;
+        const title = String(sec.title || '').trim().slice(0, 50);
+        // 图标只允许 fontawesome class，防 class 注入
+        const icon = /^fa-[a-zA-Z0-9-]+$/.test(String(sec.icon || '')) ? String(sec.icon) : '';
+        const links = [];
+        for (const l of (Array.isArray(sec.links) ? sec.links : []).slice(0, 50)) {
+            if (!l || typeof l !== 'object') continue;
+            const name = String(l.name || '').trim().slice(0, 100);
+            const url = sanitizeUrl(l.url);
+            if (name && url) links.push({ name, url });
+        }
+        out.push({ id, title: title || null, icon, links });
+    }
+    return out;
+}
+
+// 布局配置清洗：所有值白名单 + 数值范围钳制，防注入
+function sanitizeLayout(l) {
+    const out = {};
+    if ([2, 3, 4].includes(Number(l.columns))) out.columns = Number(l.columns);
+    if ([16, 32, 48].includes(Number(l.gap))) out.gap = Number(l.gap);
+    if ([8, 16, 24].includes(Number(l.radius))) out.radius = Number(l.radius);
+    const op = parseFloat(l.opacity);
+    if (!isNaN(op) && op > 0) out.opacity = Math.min(1, Math.max(0.2, Math.round(op * 100) / 100));
+    out.showFriendLinks = l.showFriendLinks !== false;
+    out.useFavicon = l.useFavicon !== false;
+    if (Array.isArray(l.cardOrder)) {
+        out.cardOrder = l.cardOrder.map(s => String(s).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80)).filter(Boolean).slice(0, 60);
+    }
+    if (Array.isArray(l.hiddenCards)) {
+        out.hiddenCards = l.hiddenCards.map(s => String(s).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80)).filter(Boolean).slice(0, 60);
     }
     return out;
 }
