@@ -1,11 +1,11 @@
-# 🌐 科技共享 - 智能多功能响应式全栈导航
+# 🌐智能全栈导航
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white)
 
-一款极简、高颜值的多功能网址导航网站。现已重构升级为 **Serverless 全栈架构**！采用 HTML + Tailwind CSS + 原生 JS 构建精美前端，结合 Cloudflare Pages Functions 与 KV 数据库提供云端 API 支持。
+一款极简、高颜值的多功能网址导航网站。升级为 **Serverless 全栈架构**！采用 HTML + Tailwind CSS + 原生 JS 构建精美前端，结合 Cloudflare Pages Functions 与 KV 数据库提供云端 API 支持。
 
 # **详细视频教程：** [点击查看](https://youtu.be/o-D9J6euddY)
 
