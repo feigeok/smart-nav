@@ -164,6 +164,16 @@
                     <span class="text-[11px] text-slate-400" data-i18n="layoutFavicon">自动获取网址 Logo</span>
                     <button onclick="toggleFavicon()" id="layout-favicon-btn" class="w-9 h-5 rounded-full bg-indigo-600 relative transition-colors cursor-pointer"><span id="layout-favicon-dot" class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full transition-all"></span></button>
                 </div>
+                <div class="flex items-center gap-2 px-1 py-0.5">
+                    <span class="text-[11px] text-slate-400 shrink-0" data-i18n="layoutFaviconSvc">图标识别服务</span>
+                    <select id="layout-favicon-svc" onchange="setFaviconService(this.value)" class="flex-1 min-w-0 bg-slate-800 text-slate-300 text-[11px] rounded-lg px-1.5 py-1 border-none cursor-pointer">
+                        <option value="faviconim" data-i18n="svcFaviconim">Favicon.im（推荐）</option>
+                        <option value="google" data-i18n="svcGoogle">Google（海外）</option>
+                        <option value="yandex" data-i18n="svcYandex">Yandex</option>
+                        <option value="direct" data-i18n="svcDirect">网站自身 favicon.ico</option>
+                        <option value="none" data-i18n="svcNone">关闭识别（字母图标）</option>
+                    </select>
+                </div>
                 <div class="text-[10px] text-slate-500 px-1" data-i18n="layoutOrder">卡片顺序与显隐 (↑↓ 移动 / 眼睛隐藏)</div>
                 <div id="layout-card-list" class="space-y-1 max-h-36 overflow-y-auto pr-1"></div>
                 <button onclick="saveLayoutSettings()" class="w-full py-1.5 rounded-lg bg-indigo-600 text-white text-[11px] text-center hover:bg-indigo-500 transition-colors cursor-pointer" data-i18n="layoutSave">保存布局设置</button>
@@ -336,11 +346,22 @@
         function defaultLayout() {
             return {
                 columns: 3, gap: 32, radius: 16, opacity: 0.7,
-                showFriendLinks: true, useFavicon: true,
+                showFriendLinks: true, useFavicon: true, faviconService: 'faviconim',
                 cardOrder: [], hiddenCards: []
             };
         }
         let currentUseFavicon = true;
+
+        // 图标识别服务（nav-hub 同款方案）：
+        // favicon.im 国内可达、返回真实高清图标，设为默认；
+        // 无论选哪个，前端都有「主服务 → 网站自身 favicon.ico → 字母图标」三级回退
+        const FAVICON_SERVICES = {
+            faviconim: d => 'https://favicon.im/' + d + '?larger=true',
+            google:    d => 'https://www.google.com/s2/favicons?domain=' + d + '&sz=64',
+            yandex:    d => 'https://favicon.yandex.net/favicon/v2/' + d,
+            direct:    d => 'https://' + d + '/favicon.ico'
+        };
+        let currentFaviconSvc = 'faviconim';
 
         let dragType = null; 
         let dragSecId = null; 
@@ -371,6 +392,7 @@
                 needLogin: "操作未授权：请先登录后台管理", fillBoth: "请完整填写名称和网址！", netError: "网络错误，请检查部署是否正常", alreadyAdmin: "提示：您已处于后台管理模式。",
                 layoutTitle: "布局设置 (全站同步)", layoutReset: "重置默认", layoutColumns: "主网格列数", layoutGap: "卡片间距", layoutRadius: "卡片圆角",
                 layoutOpacity: "卡片透明度", layoutFriend: "显示快捷链接", layoutFavicon: "自动获取网址 Logo", layoutOrder: "卡片顺序与显隐 (↑↓ 移动 / 眼睛隐藏)",
+                layoutFaviconSvc: "图标识别服务", svcFaviconim: "Favicon.im（推荐）", svcGoogle: "Google（海外）", svcYandex: "Yandex", svcDirect: "网站自身 favicon.ico", svcNone: "关闭识别（字母图标）",
                 layoutSave: "保存布局设置", layoutSaved: "✅ 布局设置已保存，全站生效", layoutResetConfirm: "确定恢复默认布局吗？",
                 gapTight: "紧凑", gapMid: "标准", gapLoose: "宽松", radiusSmall: "小", radiusMid: "中", radiusLarge: "大",
                 fixedEditBtn: "编辑", fixedEditModalTitle: "编辑固定卡片", fixedCardTitle: "卡片标题", fixedLinks: "链接列表",
@@ -397,6 +419,7 @@
                 needLogin: "Unauthorized: please login as admin first", fillBoth: "Please fill in both name and URL!", netError: "Network error, please check deployment", alreadyAdmin: "Notice: You are already in admin mode.",
                 layoutTitle: "Layout Settings (Cloud Sync)", layoutReset: "Reset Defaults", layoutColumns: "Grid Columns", layoutGap: "Card Spacing", layoutRadius: "Card Radius",
                 layoutOpacity: "Card Opacity", layoutFriend: "Show Quick Links", layoutFavicon: "Auto Fetch Site Logo", layoutOrder: "Card Order & Visibility",
+                layoutFaviconSvc: "Icon Service", svcFaviconim: "Favicon.im (Recommended)", svcGoogle: "Google (Overseas)", svcYandex: "Yandex", svcDirect: "Site's own favicon.ico", svcNone: "Disabled (Letter Icons)",
                 layoutSave: "Save Layout", layoutSaved: "✅ Layout saved & synced", layoutResetConfirm: "Reset to default layout?",
                 gapTight: "Tight", gapMid: "Normal", gapLoose: "Loose", radiusSmall: "S", radiusMid: "M", radiusLarge: "L",
                 fixedEditBtn: "Edit", fixedEditModalTitle: "Edit Fixed Card", fixedCardTitle: "Card Title", fixedLinks: "Links",
@@ -747,6 +770,7 @@
             if (friendWrap) friendWrap.style.display = layout.showFriendLinks ? '' : 'none';
             // 图标模式
             currentUseFavicon = layout.useFavicon;
+            currentFaviconSvc = layout.faviconService || 'faviconim';
             // 卡片顺序与显隐
             reorderCards();
             applyCardVisibility();
@@ -794,6 +818,8 @@
             }
             setToggleBtn('layout-friend-btn', 'layout-friend-dot', layout.showFriendLinks);
             setToggleBtn('layout-favicon-btn', 'layout-favicon-dot', layout.useFavicon);
+            const svcSel = document.getElementById('layout-favicon-svc');
+            if (svcSel) svcSel.value = layout.faviconService || 'faviconim';
             buildCardOrderList();
         }
 
@@ -899,6 +925,12 @@
             setToggleBtn('layout-favicon-btn', 'layout-favicon-dot', l.useFavicon);
             loadCustomLinks(); renderDynamicSections();
         }
+        function setFaviconService(v) {
+            if (!FAVICON_SERVICES[v] && v !== 'none') return;
+            getLayout().faviconService = v;
+            currentFaviconSvc = v;
+            loadCustomLinks(); renderDynamicSections();
+        }
         async function saveLayoutSettings() {
             updateCloudConfig('layout', getLayout());
             alert(t('layoutSaved'));
@@ -907,6 +939,7 @@
             if (!confirm(t('layoutResetConfirm'))) return;
             cloudConfig.layout = defaultLayout();
             currentUseFavicon = true;
+            currentFaviconSvc = 'faviconim';
             applyLayout();
             updateCloudConfig('layout', cloudConfig.layout);
             alert(t('layoutSaved'));
@@ -1132,14 +1165,29 @@
             icon.className = iconSizeClass + ' rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold shrink-0';
             icon.textContent = (displayName || '?').charAt(0).toUpperCase();
             try {
-                if (currentUseFavicon && url) {
-                    const img = document.createElement('img');
-                    img.src = 'https://unavatar.io/duckduckgo/' + new URL(url).hostname;
-                    img.draggable = false;
-                    img.className = imgSizeClass + ' rounded object-contain shrink-0';
-                    img.alt = '';
-                    img.addEventListener('error', () => { img.style.display = 'none'; });
-                    return img;
+                const svc = FAVICON_SERVICES[currentFaviconSvc];
+                if (currentUseFavicon && svc && url) {
+                    let hostname;
+                    try { hostname = new URL(url).hostname; } catch (e) { hostname = ''; }
+                    if (hostname) {
+                        const img = document.createElement('img');
+                        img.src = svc(hostname);
+                        img.draggable = false;
+                        img.loading = 'lazy';
+                        img.referrerPolicy = 'no-referrer';
+                        img.className = imgSizeClass + ' rounded object-contain shrink-0';
+                        img.alt = '';
+                        // 三级回退：主服务 → 网站自身 favicon.ico → 字母图标
+                        img.addEventListener('error', () => {
+                            if (!img.dataset.r) {
+                                img.dataset.r = '1';
+                                img.src = 'https://' + hostname + '/favicon.ico';
+                            } else if (img.parentNode) {
+                                img.replaceWith(icon);
+                            }
+                        });
+                        return img;
+                    }
                 }
             } catch (e) {}
             return icon;
